@@ -4,19 +4,70 @@
 from __future__ import print_function
 from argparse import ArgumentParser
 
+from baroness.cache import cache_save, cache_delete
+from baroness.search import search
+from baroness.utils import set_default_subparser
+
 
 def main():
     """The parser and entry point."""
+    ArgumentParser.set_default_subparser = set_default_subparser
     parser = ArgumentParser('baroness')
-    subparsers = parser.add_subparsers()
+    sub = parser.add_subparsers()
 
-    cache = subparsers.add_parser('cache', help='Manage FST file cache')
-    cache_subparsers = cache.add_subparsers()
+    # Cache
+    cache_parser = sub.add_parser('cache')
+    cache_sub = cache_parser.add_subparsers()
 
-    cache_save = cache_subparsers.add_parser('save', help='Save given files (all tree) to disk')
-    cache_save.add_argument('files', help='Files and paths to save', default='*')
+    cache_save_parser = cache_sub.add_parser(
+        'save',
+        description='Save given files (all tree) to disk'
+    )
+    cache_save_parser.add_argument(
+        'files',
+        nargs='*',
+        metavar='FILE',
+        help='Files to save to cache.'
+    )
+    cache_save_parser.add_argument(
+        '--force',
+        action='store_true',
+        help='Save over already existing cache files.'
+    )
+    cache_save_parser.set_defaults(func=cache_save)
 
-    args = parser.parse_args()
+    cache_del_parser = cache_sub.add_parser(
+        'delete',
+        description='Remove all .baroness directories'
+    )
+    cache_del_parser.set_defaults(func=cache_delete)
 
-    print(vars(args))
-    return args
+    # Search
+    search_parser = sub.add_parser('search')
+    search_parser.add_argument(
+        'pattern',
+        help='Python redbaron code to search where `root` is the variable holding the tree'
+    )
+    search_parser.add_argument(
+        'files',
+        nargs='*',
+        help='File names and/or glob pattern. Default to recursive search of python all files.'
+    )
+    search_parser.add_argument(
+        '--no-cache',
+        action='store_true',
+        help='Do no use the cache in `.baroness` even if it exists'
+    )
+    search_parser.add_argument(
+        '--parents',
+        default=0,
+        type=int,
+        help='Number of parents to go up on matched nodes.'
+    )
+    search_parser.set_defaults(func=search)
+
+    parser.set_default_subparser('search')
+
+    args = vars(parser.parse_args())
+    func = args.pop('func')
+    return func(**args)
