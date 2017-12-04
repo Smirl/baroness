@@ -3,9 +3,12 @@
 from setuptools import setup, find_packages
 from pkg_resources import parse_requirements
 
-
-with open('./README.md') as f:
-    long_description = f.read().strip()
+try:
+    import pypandoc
+    long_description = pypandoc.convert_file('README.md', 'rst')
+except ImportError:
+    with open('./README.md') as f:
+        long_description = f.read().strip()
 
 
 with open('./requirements.txt') as f:
