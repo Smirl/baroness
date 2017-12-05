@@ -12,7 +12,7 @@ except ImportError:
 
 
 with open('./requirements.txt') as f:
-    requirements = map(str, parse_requirements(f.readlines()))
+    requirements = list(map(str, parse_requirements(f.readlines())))
 
 
 with open('./baroness/version.txt') as f:

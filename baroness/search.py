@@ -7,7 +7,7 @@ import os
 from redbaron import RedBaron
 from redbaron.base_nodes import NodeList
 
-from baroness.utils import filenames
+from baroness.utils import filenames, format_node
 
 
 try:
@@ -16,12 +16,10 @@ except ImportError:
     import json
 
 
-def search(pattern, files, no_cache, parents):
+def search(pattern, files, no_cache, parents, no_color, no_linenos):
     """Search all files with the redbaron expression in pattern."""
     _search = None  # for linters
-    code = 'def _search(root):\n    return {}'.format(pattern)
-    print(code)
-    exec code
+    exec('def _search(root):\n    return {}'.format(pattern))
 
     for filename in filenames(files):
         cache_file = os.path.join('.baroness', filename) + '.json'
@@ -38,4 +36,6 @@ def search(pattern, files, no_cache, parents):
             for result in results:
                 for _ in range(parents):
                     result = result.parent if result.parent else result
-                print(result)
+                print(format_node(result, no_color=no_color, no_linenos=no_linenos))
+                print('--')
+            print()
