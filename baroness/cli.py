@@ -64,6 +64,16 @@ def main():
         type=int,
         help='Number of parents to go up on matched nodes.'
     )
+    search_parser.add_argument(
+        '--no-color',
+        action='store_true',
+        help='Do not color the output.'
+    )
+    search_parser.add_argument(
+        '--no-linenos',
+        action='store_true',
+        help='Do not output the linenumbers.'
+    )
     search_parser.set_defaults(func=search)
 
     parser.set_default_subparser('search')
