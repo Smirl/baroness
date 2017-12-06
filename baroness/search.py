@@ -26,6 +26,9 @@ def search(pattern, files, no_cache, parents, no_color, no_linenos):
         if not no_cache and os.path.exists(cache_file):
             with open(cache_file) as f:
                 root = RedBaron(NodeList.from_fst(json.load(f)))
+            for node in root:
+                node.parent = root
+            root.node_list.parent = root
         else:
             with open(filename) as py:
                 root = RedBaron(py.read())
