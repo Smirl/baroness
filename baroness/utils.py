@@ -2,7 +2,7 @@
 
 from argparse import _SubParsersAction
 from glob import glob
-from itertools import repeat, count, izip
+from itertools import repeat, count
 import os
 import sys
 
@@ -76,7 +76,7 @@ def format_node(node, no_color=False, no_linenos=False):
             linenos = repeat('**')
         lines = [
             '{}-{}'.format(format_lineno(str(lineno)).strip(), line)
-            for lineno, line in izip(linenos, lines)
+            for lineno, line in zip(linenos, lines)
         ]
 
     return '\n'.join(lines)
