@@ -7,7 +7,7 @@ import os
 from redbaron import RedBaron
 from redbaron.base_nodes import NodeList
 
-from baroness.utils import filenames, format_node
+from baroness.utils import filenames, format_node, _load_and_save, _cache_filename
 
 
 try:
@@ -23,7 +23,7 @@ def search(pattern, files, no_cache, parents, no_color, no_linenos):
     _search = local['_search']
 
     for filename in filenames(files):
-        cache_file = os.path.join('.baroness', filename) + '.json'
+        cache_file = _cache_filename(filename)
         if not no_cache and os.path.exists(cache_file):
             with open(cache_file) as f:
                 root = RedBaron(NodeList.from_fst(json.load(f)))
@@ -31,8 +31,7 @@ def search(pattern, files, no_cache, parents, no_color, no_linenos):
                 node.parent = root
             root.node_list.parent = root
         else:
-            with open(filename) as py:
-                root = RedBaron(py.read())
+            root = _load_and_save(filename, cache_file, no_cache=no_cache)
 
         results = _search(root)
         if results:

@@ -3,12 +3,18 @@
 from argparse import _SubParsersAction
 from glob import glob
 from itertools import repeat, count
-from functools import partial
 import os
 import sys
 
 from builtins import str
+from distutils.dir_util import mkpath
+from redbaron import RedBaron
 from redbaron.syntax_highlight import python_highlight
+
+try:
+    import ujson as json
+except ImportError:
+    import json
 
 
 def filenames(files):
@@ -87,3 +93,21 @@ def format_node(node, no_color=False, no_linenos=False):
         ]
 
     return u'\n'.join(lines)
+
+
+def _load_and_save(filename, cache_file, no_cache=False):
+    """Save a tree to file and return the parsed RedBaron."""
+    mkpath(os.path.split(cache_file)[0])
+
+    with open(filename) as py:
+        root = RedBaron(py.read())
+        if not no_cache:
+            with open(cache_file, 'w') as output:
+                json.dump(root.fst(), output)
+
+    return root
+
+
+def _cache_filename(filename):
+    """Return the filename to store the cached data in."""
+    return os.path.join('.baroness', filename) + '.json'

@@ -4,15 +4,7 @@ from __future__ import print_function
 import shutil
 import os
 
-from distutils.dir_util import mkpath
-from redbaron import RedBaron
-
-from baroness.utils import filenames
-
-try:
-    import ujson as json
-except ImportError:
-    import json
+from baroness.utils import filenames, _load_and_save, _cache_filename
 
 
 def cache_save(files, force):
@@ -21,15 +13,11 @@ def cache_save(files, force):
         os.mkdir('.baroness')
 
     for filename in filenames(files):
-        cache_file = os.path.join('.baroness', filename) + '.json'
-        mkpath(os.path.split(cache_file)[0])
-
+        cache_file = _cache_filename(filename)
         if not force and os.path.exists(cache_file):
             print('Skipping cached file', filename)
             continue
-
-        with open(filename) as py, open(cache_file, 'w') as output:
-            json.dump(RedBaron(py.read()).fst(), output)
+        _load_and_save(filename, cache_file)
         print('Saved', filename, 'fst to', cache_file)
 
 
