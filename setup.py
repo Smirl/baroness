@@ -27,7 +27,6 @@ setup(
     long_description=long_description,
     author='Alex Williams',
     url='https://github.com/smirl/baroness',
-    tests_require=['pytest', 'pytest-mock', 'pytest-cov'],
     install_requires=requirements,
     entry_points={
         'console_scripts': [
