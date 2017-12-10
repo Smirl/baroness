@@ -18,8 +18,9 @@ except ImportError:
 
 def search(pattern, files, no_cache, parents, no_color, no_linenos):
     """Search all files with the redbaron expression in pattern."""
-    _search = None  # for linters
-    exec('def _search(root):\n    return {}'.format(pattern))
+    local = locals()
+    exec('def _search(root):\n    return {}'.format(pattern), globals(), local)
+    _search = local['_search']
 
     for filename in filenames(files):
         cache_file = os.path.join('.baroness', filename) + '.json'
