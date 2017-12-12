@@ -51,6 +51,8 @@ def main():
     assert str(current_version) not in tags, '{} is in {}'.format(current_version, tags)
     assert current_version > latest_version, '{} not greater than {}'.format(current_version, latest_version)
 
+    print('{} is a valid version'.format(current_version))
+
 
 if __name__ == '__main__':
     main()
