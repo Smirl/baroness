@@ -3,6 +3,7 @@
 Toolkit for easy searching and manipulation of python source code using
 redbaron.
 
+[ ![Codeship Status for Smirl/baroness](https://app.codeship.com/projects/647edcd0-bcc0-0135-7fde-5afd35787ded/status?branch=master)](https://app.codeship.com/projects/259596)
 
 ## Installation
 
