@@ -1,5 +1,9 @@
 *.egg-info
 *.pyc
-dist/
-build/
 .baroness/
+.cache/
+.coverage
+.tox/
+build/
+dist/
+htmlcov/

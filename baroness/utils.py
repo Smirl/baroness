@@ -3,9 +3,11 @@
 from argparse import _SubParsersAction
 from glob import glob
 from itertools import repeat, count
+from functools import partial
 import os
 import sys
 
+from builtins import str
 from redbaron.syntax_highlight import python_highlight
 
 
@@ -61,22 +63,27 @@ def set_default_subparser(self, name, args=None):
 def format_node(node, no_color=False, no_linenos=False):
     """Add line numbers to the str of a node."""
     if sys.stdin.isatty and not no_color:
-        lines = python_highlight(node.dumps()).decode('utf-8').splitlines()
-        format_lineno = python_highlight
-    else:
-        lines = node.dumps().decode('utf-8').splitlines()
+        lines = list(map(
+            lambda x: str(x, 'utf-8'),
+            python_highlight(node.dumps()).splitlines()
+        ))
 
         def format_lineno(lineno):
-            return lineno
+            return str(python_highlight(str(lineno)), 'utf-8')
+    else:
+        lines = node.dumps().splitlines()
+
+        def format_lineno(lineno):
+            return str(lineno)
 
     if not no_linenos:
         try:
             linenos = count(node.absolute_bounding_box.top_left.line)
         except AttributeError:
-            linenos = repeat('**')
+            linenos = repeat(u'**')
         lines = [
-            '{}-{}'.format(format_lineno(str(lineno)).strip(), line)
+            u'{}-{}'.format(format_lineno(lineno).strip(), line)
             for lineno, line in zip(linenos, lines)
         ]
 
-    return '\n'.join(lines)
+    return u'\n'.join(lines)

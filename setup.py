@@ -2,20 +2,24 @@
 
 from setuptools import setup, find_packages
 from pkg_resources import parse_requirements
+import os
+
+
+DIRNAME = os.path.dirname(__file__)
 
 try:
     import pypandoc
     long_description = pypandoc.convert_file('README.md', 'rst')
-except ImportError:
-    with open('./README.md') as f:
+except Exception:
+    with open(os.path.join(DIRNAME, 'README.md')) as f:
         long_description = f.read().strip()
 
 
-with open('./requirements.txt') as f:
+with open(os.path.join(DIRNAME, 'requirements.txt')) as f:
     requirements = list(map(str, parse_requirements(f.readlines())))
 
 
-with open('./baroness/version.txt') as f:
+with open(os.path.join(DIRNAME, 'baroness', 'version.txt')) as f:
     version = f.read().strip()
 
 
@@ -27,7 +31,6 @@ setup(
     long_description=long_description,
     author='Alex Williams',
     url='https://github.com/smirl/baroness',
-    tests_require=['pytest', 'pytest-mock', 'pytest-cov'],
     install_requires=requirements,
     entry_points={
         'console_scripts': [

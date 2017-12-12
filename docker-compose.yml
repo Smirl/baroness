@@ -6,11 +6,11 @@ services:
     volumes:
       - '.:/opt/code'
     working_dir: '/opt/code'
-    command: 'sh -c "pip install . && baroness --help"'
+    command: 'sh -c "pip install . -r requirements_test.txt && baroness --help && py.test"'
 
   test3:
     image: python:3-alpine
     volumes:
       - '.:/opt/code'
     working_dir: '/opt/code'
-    command: 'sh -c "pip install . && baroness --help"'
+    command: 'sh -c "pip install . -r requirements_test.txt && baroness --help && py.test"'
