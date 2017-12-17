@@ -4,10 +4,13 @@
 from __future__ import print_function
 import os
 
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from redbaron import RedBaron
 from redbaron.base_nodes import NodeList
 
-from baroness.utils import filenames, format_node
+from baroness.utils import (
+    filenames, format_node, _load_and_save, _cache_filename, LOGGER
+)
 
 
 try:
@@ -22,8 +25,9 @@ def search(pattern, files, no_cache, parents, no_color, no_linenos):
     exec('def _search(root):\n    return {}'.format(pattern), globals(), local)
     _search = local['_search']
 
-    for filename in filenames(files):
-        cache_file = os.path.join('.baroness', filename) + '.json'
+    def _search_file(filename):
+        """Search a given filename."""
+        cache_file = _cache_filename(filename)
         if not no_cache and os.path.exists(cache_file):
             with open(cache_file) as f:
                 root = RedBaron(NodeList.from_fst(json.load(f)))
@@ -31,15 +35,30 @@ def search(pattern, files, no_cache, parents, no_color, no_linenos):
                 node.parent = root
             root.node_list.parent = root
         else:
-            with open(filename) as py:
-                root = RedBaron(py.read())
+            root = _load_and_save(filename, cache_file, no_cache=no_cache)
 
         results = _search(root)
+        output = []
         if results:
-            print(filename)
+            output.append(filename)
             for result in results:
                 for _ in range(parents):
                     result = result.parent if result.parent else result
-                print(format_node(result, no_color=no_color, no_linenos=no_linenos))
-                print('--')
-            print()
+                output.append(format_node(result, no_color=no_color, no_linenos=no_linenos))
+                output.append('--')
+            output.append('')
+        return output
+
+    with ThreadPoolExecutor(max_workers=10) as executor:
+        tasks = [
+            executor.submit(_search_file, filename)
+            for filename in filenames(files)
+        ]
+        for future in as_completed(tasks):
+            try:
+                output = '\n'.join(future.result())
+            except Exception:
+                LOGGER.exception('Error processing file')
+            else:
+                if output:
+                    LOGGER.info(output)
