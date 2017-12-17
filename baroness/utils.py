@@ -3,6 +3,7 @@
 from argparse import _SubParsersAction
 from glob import glob
 from itertools import repeat, count
+import logging
 import os
 import sys
 
@@ -15,6 +16,13 @@ try:
     import ujson as json
 except ImportError:
     import json
+
+
+LOGGER = logging.getLogger('baroness')
+LOGGER.setLevel(logging.DEBUG)
+ch = logging.StreamHandler()
+ch.setLevel(logging.DEBUG)
+LOGGER.addHandler(ch)
 
 
 def filenames(files):
