@@ -3,6 +3,7 @@
 
 from __future__ import print_function
 from argparse import ArgumentParser
+import multiprocessing
 import logging
 
 from baroness.cache import cache_save, cache_delete
@@ -77,9 +78,15 @@ def main():
     )
     search_parser.add_argument(
         '-v', '--verbose',
+        default=0,
         action='count',
-        help='Level of verbosity. Can be used many times.',
-        default=0
+        help='Level of verbosity. Can be used many times.'
+    )
+    search_parser.add_argument(
+        '-P', '--processes',
+        default=multiprocessing.cpu_count() + 1,  # 'cus why not
+        type=int,
+        help='Number of processes to use.'
     )
     search_parser.set_defaults(func=search)
 
