@@ -19,7 +19,7 @@ except ImportError:
 
 
 LOGGER = logging.getLogger('baroness')
-LOGGER.setLevel(logging.DEBUG)
+LOGGER.setLevel(logging.INFO)
 ch = logging.StreamHandler()
 ch.setLevel(logging.DEBUG)
 LOGGER.addHandler(ch)
@@ -33,6 +33,7 @@ def filenames(files):
     and yield python files. Or can be a list of filenames and/or glob patterns
     which we expand, and filter for python files.
     """
+    LOGGER.debug('Expanding globs: %s', files)
     directories = []
     if files:
         for pattern in files:
@@ -45,6 +46,7 @@ def filenames(files):
     if not (files or directories):
         directories.append('.')
 
+    LOGGER.debug('Searching for python files in: %s', directories)
     for directory in directories:
         for root, dirs, files in os.walk(directory):
             for filename in files:

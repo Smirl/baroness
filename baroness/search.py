@@ -20,7 +20,7 @@ except ImportError:
     import json
 
 
-def search(pattern, files, no_cache, parents, no_color, no_linenos):
+def search(pattern, files, no_cache, parents, no_color, no_linenos, verbose):
     """Search all files with the redbaron expression in pattern."""
     local = locals()
     exec('def _search(root):\n    return {}'.format(pattern), globals(), local)
@@ -46,9 +46,9 @@ def search(pattern, files, no_cache, parents, no_color, no_linenos):
                 for _ in range(parents):
                     result = result.parent if result.parent else result
                 output.append(format_node(result, no_color=no_color, no_linenos=no_linenos))
-                output.append('--')
-            output.append('')
-        return output
+                output.append(u'--')
+            output.append(u'')
+        return (filename, u'\n'.join(output))
 
     try:
         with ThreadPoolExecutor(max_workers=10) as executor:

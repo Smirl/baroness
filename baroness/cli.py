@@ -3,10 +3,11 @@
 
 from __future__ import print_function
 from argparse import ArgumentParser
+import logging
 
 from baroness.cache import cache_save, cache_delete
 from baroness.search import search
-from baroness.utils import set_default_subparser
+from baroness.utils import set_default_subparser, LOGGER
 
 
 def main():
@@ -74,10 +75,18 @@ def main():
         action='store_true',
         help='Do not output the linenumbers.'
     )
+    search_parser.add_argument(
+        '-v', '--verbose',
+        action='count',
+        help='Level of verbosity. Can be used many times.',
+        default=0
+    )
     search_parser.set_defaults(func=search)
 
     parser.set_default_subparser('search')
 
     args = vars(parser.parse_args())
     func = args.pop('func')
+    if args.get('verbose', 0) > 0:
+        LOGGER.setLevel(logging.DEBUG)
     return func(**args)
