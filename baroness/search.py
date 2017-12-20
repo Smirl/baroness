@@ -3,6 +3,7 @@
 
 from __future__ import print_function
 import os
+import sys
 
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from redbaron import RedBaron
@@ -49,16 +50,21 @@ def search(pattern, files, no_cache, parents, no_color, no_linenos):
             output.append('')
         return output
 
-    with ThreadPoolExecutor(max_workers=10) as executor:
-        tasks = [
-            executor.submit(_search_file, filename)
-            for filename in filenames(files)
-        ]
-        for future in as_completed(tasks):
-            try:
-                output = '\n'.join(future.result())
-            except Exception:
-                LOGGER.exception('Error processing file')
-            else:
-                if output:
-                    LOGGER.info(output)
+    try:
+        with ThreadPoolExecutor(max_workers=10) as executor:
+            tasks = (
+                executor.submit(_search_file, filename)
+                for filename in filenames(files)
+            )
+            for future in as_completed(tasks):
+                try:
+                    filename, output = future.result()
+                except Exception:
+                    LOGGER.exception('Error processing file')
+                else:
+                    LOGGER.debug('DEBUG Searching: %s', filename)
+                    if output:
+                        LOGGER.info(output)
+    except KeyboardInterrupt:
+        LOGGER.critical('KeyboardInterrupt, quitting')
+        sys.exit(1)
