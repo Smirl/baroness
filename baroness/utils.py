@@ -120,4 +120,9 @@ def _load_and_save(filename, cache_file, no_cache=False):
 
 def _cache_filename(filename):
     """Return the filename to store the cached data in."""
-    return os.path.join('.baroness', filename) + '.json'
+    head, tail = os.path.split(filename)
+    return os.path.join(
+        '.baroness',
+        os.path.abspath(head).lstrip(os.path.sep),
+        tail + '.json'
+    )
