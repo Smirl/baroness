@@ -97,6 +97,8 @@ def format_node(node, no_color=False, no_linenos=False):
             linenos = count(node.absolute_bounding_box.top_left.line)
         except AttributeError:
             linenos = repeat(u'**')
+        except ValueError:
+            linenos = count()
         lines = [
             u'{}-{}'.format(format_lineno(lineno).strip(), line)
             for lineno, line in zip(linenos, lines)

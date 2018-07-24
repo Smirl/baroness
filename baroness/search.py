@@ -2,9 +2,9 @@
 
 
 from __future__ import print_function
-from itertools import repeat
 from multiprocessing import Pool
 import os
+import signal
 import sys
 
 from redbaron import RedBaron
@@ -29,8 +29,9 @@ def search(
     options = dict(locals())
     options.pop('files')
 
+    LOGGER.debug('DEBUG Using options: %s', options)
     LOGGER.debug('DEBUG Using %s processes', processes)
-    pool = Pool(processes)
+    pool = Pool(processes, _init_worker)
     tasks = ((filename, pattern, options) for filename in filenames(files))
     try:
         for result in pool.imap_unordered(_safe_search_file, tasks):
@@ -46,6 +47,11 @@ def search(
     finally:
         pool.terminate()
         pool.join()
+
+
+def _init_worker():
+    """Ensure that KeyboardInterrupt is ignored."""
+    signal.signal(signal.SIGINT, signal.SIG_IGN)
 
 
 def _safe_search_file(args):
@@ -74,12 +80,26 @@ def _search_file(filename, pattern, options):
 
         results = _search(root)
         output = []
+        seen = set()
         if results:
             output.append(filename)
             for result in results:
+                # Get the correct number of parents
                 for _ in range(options['parents']):
                     result = result.parent if result.parent else result
-                output.append(format_node(result, no_color=options['no_color'], no_linenos=options['no_linenos']))
+
+                # Ensure that we don't print the same code twice
+                if result in seen:
+                    continue
+                else:
+                    seen.add(result)
+
+                # format the output
+                output.append(format_node(
+                    result,
+                    no_color=options['no_color'],
+                    no_linenos=options['no_linenos']
+                ))
                 output.append(u'--')
             output.append(u'')
         return (filename, u'\n'.join(output))
